@@ -1,17 +1,6 @@
 # ⚡ NEXACK 2K26 - Full-Stack Hackathon Management Platform
 
-<div align="center">
 
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)
-![React](https://img.shields.io/badge/React-18.2.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)
-![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=node.js&logoColor=white)
-![Express.js](https://img.shields.io/badge/Express.js-4.18-000000?style=for-the-badge&logo=express&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
-![JWT](https://img.shields.io/badge/Auth-JWT_Bcrypt-blue?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
-
-<br />
 
 ### 🚀 *"BUILD. BREAK. INNOVATE."*
 **Organized by Nexora Association**  
@@ -87,23 +76,8 @@
   - Strict submission window enforcement (blocks early/late submissions)
   - GitHub/GitLab repository links, live deployment URLs, presentation slides, tech stack tags, and architecture diagrams.
 
-### 3. Judging & Evaluation Engine (100-Point Rubric)
-- **Role-Based Judge Portal**: Secure authentication for designated judges assigned to specific project queues.
-- **7-Criteria 100-Point Scoring Rubric**:
-  | # | Criterion | Max Score |
-  |---|---|:---:|
-  | 1 | **Innovation & Originality** | 20 |
-  | 2 | **Technical Complexity & Execution** | 25 |
-  | 3 | **Relevance to Problem Statement** | 15 |
-  | 4 | **UI / UX Design & Usability** | 15 |
-  | 5 | **Scalability & Architecture** | 10 |
-  | 6 | **Practical Impact & Viability** | 10 |
-  | 7 | **Presentation & Pitch** | 5 |
-  | | **Total** | **100** |
-- **Score Integrity**: Evaluation lock prevents subsequent accidental alterations; unlock requires Super Admin intervention.
-- **Automated Tie-Handling & Leaderboard**: Calculated composite averages with administrative podium release toggles.
 
-### 4. Super Admin Management Center
+### 3. Super Admin Management Center
 - **Live Analytics Hub**: Total registrations, revenue, payment status distribution, track popularity charts, and conversion funnel.
 - **Registrations & Payments Desk**:
   - Zoomable payment proof preview modal
@@ -245,13 +219,13 @@ Nexack_2K26/
    CLOUDINARY_API_SECRET=
    ```
 
-5. Seed initial indexes, settings, and Super Admin:
+4. Seed initial indexes, settings, and Super Admin:
    ```bash
    npm run seed
    # Or: node scripts/seedInitial.js
    ```
 
-6. Start the backend development server:
+5. Start the backend development server:
    ```bash
    npm run dev
    ```
