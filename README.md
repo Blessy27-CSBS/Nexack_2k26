@@ -364,7 +364,3 @@ All routes are versioned under `/api/v1`:
 - **Event**: NEXACK 2K26 Hackathon
 
 ---
-
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
