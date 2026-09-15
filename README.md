@@ -1,15 +1,5 @@
-# ⚡ NEXACK 2K26 - Full-Stack Hackathon Management Platform
+# ⚡ NEXACK 2K26 - Hackathon Management Platform
 
-
-
-### 🚀 *"BUILD. BREAK. INNOVATE."*
-**Organized by Nexora Association**  
-*Department of Computer Science & Business Systems (CSBS)*  
-**KGiSL Institute of Technology (KiTE), Coimbatore**
-
-</div>
-
----
 
 ## 📖 Table of Contents
 
@@ -283,9 +273,7 @@ After executing `npm run seed`:
 | `ADMIN_NAME` | Initial Super Admin display name | `Nexora Super Admin` |
 | `ADMIN_EMAIL` | Initial Super Admin login email | `admin@nexack.com` |
 | `ADMIN_PASSWORD` | Initial Super Admin password | `Admin@Nexack2K26` |
-| `CLOUDINARY_CLOUD_NAME` | *(Optional)* Cloudinary Cloud Name | Empty |
-| `CLOUDINARY_API_KEY` | *(Optional)* Cloudinary API Key | Empty |
-| `CLOUDINARY_API_SECRET` | *(Optional)* Cloudinary API Secret | Empty |
+
 
 ### Frontend (`frontend/.env.development` & `frontend/.env.production`)
 
