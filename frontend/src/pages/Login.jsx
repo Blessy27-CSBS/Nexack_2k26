@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Terminal, Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
+import { Terminal, Lock, Mail, ArrowRight, AlertCircle, Sparkles, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -22,7 +22,7 @@ const Login = () => {
       navigate('/dashboard');
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || 'Invalid email or password.');
+      setError(err.response?.data?.message || 'Invalid email or password credentials.');
     } finally {
       setLoading(false);
     }
@@ -31,29 +31,32 @@ const Login = () => {
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 text-white">
       <div className="w-full max-w-md">
-        {/* Card */}
-        <div className="cyber-card p-8 sm:p-10 border border-white/10 shadow-2xl relative overflow-hidden">
+        {/* Editorial Card */}
+        <div className="p-8 sm:p-10 border border-white/[0.08] shadow-2xl relative overflow-hidden bg-gradient-to-b from-zinc-900 via-zinc-950 to-[#07080a] rounded-3xl">
           {/* Ambient light */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
           {/* Logo header */}
           <div className="text-center mb-8">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 p-0.5 shadow-neon-cyan mx-auto mb-4">
-              <div className="w-full h-full bg-[#07080d] rounded-[10px] flex items-center justify-center">
-                <Terminal className="w-6 h-6 text-cyan-400" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-amber-500 p-0.5 shadow-neon-emerald mx-auto mb-4">
+              <div className="w-full h-full bg-[#07080a] rounded-[14px] flex items-center justify-center">
+                <Terminal className="w-6 h-6 text-emerald-400" />
               </div>
             </div>
 
+            <span className="font-mono text-[10px] text-emerald-400 uppercase tracking-widest block mb-1">
+              // PARTICIPANT PORTAL
+            </span>
             <h2 className="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight uppercase">
-              PARTICIPANT <span className="text-gradient">LOGIN</span>
+              CSBS <span className="text-gradient">LOGIN</span>
             </h2>
-            <p className="text-xs text-slate-400 mt-1">
-              Access your team dashboard, payment status & project submission.
+            <p className="text-xs text-zinc-400 mt-1 font-sans">
+              Access squad telemetry, payment records & code submission portal.
             </p>
           </div>
 
           {error && (
-            <div className="mb-6 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center space-x-2.5">
+            <div className="mb-6 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center space-x-2.5 font-sans">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{error}</span>
             </div>
@@ -61,35 +64,35 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-mono text-slate-300 uppercase mb-1.5">
-                Registered Email
+              <label className="block text-xs font-mono text-zinc-300 uppercase mb-1.5 tracking-wider">
+                REGISTERED EMAIL ADDRESS
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Mail className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="leader@college.edu"
                   required
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-500/50"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-900/90 border border-white/10 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500/60 font-sans transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-300 uppercase mb-1.5">
-                Password
+              <label className="block text-xs font-mono text-zinc-300 uppercase mb-1.5 tracking-wider">
+                PASSWORD ACCESS KEY
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Lock className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-500/50"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-900/90 border border-white/10 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500/60 font-sans transition-all"
                 />
               </div>
             </div>
@@ -97,24 +100,24 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-heading font-extrabold text-xs tracking-wider uppercase shadow-neon-cyan hover:scale-[1.02] transition-transform disabled:opacity-50 flex items-center justify-center space-x-2"
+              className="w-full mt-2 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 hover:from-emerald-400 hover:to-amber-300 text-black font-heading font-black text-xs sm:text-sm tracking-wider uppercase shadow-neon-emerald hover:scale-[1.02] transition-transform disabled:opacity-50 flex items-center justify-center space-x-2"
             >
-              <span>{loading ? 'AUTHENTICATING...' : 'SIGN IN TO DASHBOARD'}</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>{loading ? 'AUTHENTICATING...' : 'ENTER SQUAD DASHBOARD'}</span>
+              <ArrowRight className="w-4 h-4 text-black" />
             </button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-white/10 flex flex-col items-center justify-center space-y-2 text-xs text-slate-400">
+          <div className="mt-8 pt-6 border-t border-white/[0.08] flex flex-col items-center justify-center space-y-2 text-xs text-zinc-400 font-sans">
             <p>
-              Haven't registered your team yet?{' '}
-              <Link to="/register" className="text-cyan-400 hover:underline font-semibold">
-                Register Here
+              Haven't registered your squad yet?{' '}
+              <Link to="/register" className="text-emerald-400 hover:underline font-semibold font-mono">
+                Register Squad
               </Link>
             </p>
             <p>
-              Faculty / Admin / Judge?{' '}
-              <Link to="/admin/login" className="text-slate-500 hover:text-cyan-400 transition-colors">
-                Switch to Admin Portal
+              Faculty / Judge / Admin?{' '}
+              <Link to="/admin/login" className="text-zinc-500 hover:text-emerald-400 transition-colors font-mono">
+                Admin Console
               </Link>
             </p>
           </div>

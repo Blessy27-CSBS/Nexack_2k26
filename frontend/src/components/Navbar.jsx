@@ -1,29 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Sun, Moon, Sparkles, User, LogOut, LayoutDashboard, Terminal } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, Sun, Moon, LayoutDashboard, Terminal, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
 const navLinks = [
-  { name: 'Home', path: '/' },
-  { name: 'About', path: '/about' },
-  { name: 'Tracks', path: '/tracks' },
-  { name: 'Timeline', path: '/timeline' },
-  { name: 'Rules', path: '/rules' },
-  { name: 'Prizes', path: '/prizes' },
-  { name: 'Gallery', path: '/gallery' },
+  { name: 'ABOUT', path: '/about' },
+  { name: 'CHALLENGES', path: '/tracks' },
+  { name: 'TIMELINE', path: '/timeline' },
+  { name: 'PRIZES', path: '/prizes' },
   { name: 'FAQ', path: '/faq' },
-  { name: 'Contact', path: '/contact' }
+  { name: 'CONTACT', path: '/contact' }
 ];
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark } = useTheme();
   const { user, role, logout } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,7 +29,6 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on page navigation
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
@@ -48,47 +43,47 @@ const Navbar = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         isScrolled
-          ? 'py-3 bg-[#07080d]/85 dark:bg-[#07080d]/85 light:bg-white/85 backdrop-blur-xl border-b border-white/10 shadow-lg'
+          ? 'py-3.5 bg-[#07080a]/90 backdrop-blur-xl border-b border-white/[0.08] shadow-2xl'
           : 'py-5 bg-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-        {/* Logo */}
+        {/* Left: Brand Identity */}
         <Link to="/" className="flex items-center space-x-3 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 p-0.5 shadow-neon-cyan transition-transform group-hover:scale-105">
-            <div className="w-full h-full bg-[#07080d] rounded-[10px] flex items-center justify-center">
-              <Terminal className="w-5 h-5 text-cyan-400 group-hover:rotate-12 transition-transform" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-amber-500 p-0.5 shadow-neon-emerald transition-transform group-hover:scale-105">
+            <div className="w-full h-full bg-[#07080a] rounded-[10px] flex items-center justify-center">
+              <Terminal className="w-5 h-5 text-emerald-400 group-hover:rotate-12 transition-transform" />
             </div>
           </div>
           <div>
-            <span className="font-heading text-xl font-extrabold tracking-wider text-white">
-              NEXACK <span className="text-gradient">2K26</span>
+            <span className="font-heading text-lg sm:text-xl font-black tracking-wider text-white">
+              CSBS <span className="text-gradient">NEXACK</span>
             </span>
-            <span className="hidden sm:block text-[10px] tracking-widest text-slate-400 uppercase font-mono">
-              BUILD. BREAK. INNOVATE.
+            <span className="hidden sm:block text-[9px] tracking-widest text-zinc-400 uppercase font-mono">
+              2K26 | NEXORA × CODEX
             </span>
           </div>
         </Link>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center space-x-1 bg-white/5 dark:bg-white/5 light:bg-black/5 px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-md">
+        {/* Center: Navigation Links */}
+        <nav className="hidden lg:flex items-center space-x-1 bg-white/[0.03] px-4 py-1.5 rounded-full border border-white/[0.08] backdrop-blur-md">
           {navLinks.map((link) => {
             const isActive = location.pathname === link.path;
             return (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`relative px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+                className={`relative px-4 py-1.5 rounded-full text-xs font-mono tracking-wider transition-all ${
                   isActive
-                    ? 'text-cyan-300 font-semibold'
-                    : 'text-slate-300 hover:text-white hover:bg-white/5'
+                    ? 'text-emerald-300 font-bold'
+                    : 'text-zinc-300 hover:text-white hover:bg-white/5'
                 }`}
               >
                 {isActive && (
                   <motion.div
                     layoutId="activePill"
-                    className="absolute inset-0 bg-cyan-500/20 border border-cyan-500/40 rounded-full"
-                    transition={{ type: 'spring', duration: 0.5 }}
+                    className="absolute inset-0 bg-emerald-500/15 border border-emerald-500/30 rounded-full shadow-sm"
+                    transition={{ type: 'spring', duration: 0.4 }}
                   />
                 )}
                 <span className="relative z-10">{link.name}</span>
@@ -97,22 +92,22 @@ const Navbar = () => {
           })}
         </nav>
 
-        {/* Right side controls (Theme toggle + Auth buttons) */}
+        {/* Right side controls */}
         <div className="hidden md:flex items-center space-x-3">
-          {/* Theme Toggle */}
+          {/* Theme Switcher */}
           <button
             onClick={toggleTheme}
             aria-label="Toggle Theme"
-            className="p-2 rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-2 rounded-xl border border-white/10 bg-white/5 text-zinc-300 hover:text-white hover:bg-white/10 transition-colors"
           >
-            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-cyan-400" />}
+            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-emerald-400" />}
           </button>
 
           {user ? (
             <div className="flex items-center space-x-2">
               <Link
                 to={getDashboardLink()}
-                className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-semibold tracking-wider transition-all"
+                className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-mono font-bold tracking-wider transition-all"
               >
                 <LayoutDashboard className="w-4 h-4" />
                 <span>DASHBOARD</span>
@@ -120,7 +115,7 @@ const Navbar = () => {
               <button
                 onClick={logout}
                 title="Logout"
-                className="p-2 rounded-xl border border-white/10 bg-white/5 text-slate-400 hover:text-red-400 hover:bg-white/10 transition-colors"
+                className="p-2 rounded-xl border border-white/10 bg-white/5 text-zinc-400 hover:text-red-400 hover:bg-white/10 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -129,57 +124,57 @@ const Navbar = () => {
             <div className="flex items-center space-x-2.5">
               <Link
                 to="/login"
-                className="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
+                className="px-4 py-2 rounded-xl text-xs font-mono font-semibold text-zinc-300 hover:text-white hover:bg-white/5 transition-colors"
               >
                 LOGIN
               </Link>
               <Link
                 to="/register"
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black shadow-neon-cyan btn-glow transition-all"
+                className="px-5 py-2.5 rounded-xl text-xs font-heading font-black tracking-wider bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 hover:from-emerald-400 hover:to-amber-300 text-black shadow-neon-emerald btn-glow transition-all uppercase"
               >
-                REGISTER NOW
+                REGISTER
               </Link>
             </div>
           )}
         </div>
 
-        {/* Mobile Hamburger & Theme Toggle */}
+        {/* Mobile menu button */}
         <div className="flex md:hidden items-center space-x-2">
           <button
             onClick={toggleTheme}
             aria-label="Toggle Theme"
-            className="p-2 rounded-lg border border-white/10 bg-white/5 text-slate-300"
+            className="p-2 rounded-lg border border-white/10 bg-white/5 text-zinc-300"
           >
-            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-cyan-400" />}
+            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-emerald-400" />}
           </button>
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle Menu"
-            className="p-2 rounded-lg border border-white/10 bg-white/5 text-slate-300 hover:text-white"
+            className="p-2 rounded-lg border border-white/10 bg-white/5 text-zinc-300 hover:text-white"
           >
             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Animated Dropdown Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[#0a0c16] border-b border-white/10 px-4 pt-3 pb-6 space-y-3"
+            className="md:hidden bg-[#0a0c10] border-b border-white/10 px-4 pt-4 pb-6 space-y-3 shadow-2xl"
           >
             <div className="grid grid-cols-2 gap-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                  className={`px-3.5 py-2.5 rounded-lg text-xs font-mono font-semibold ${
                     location.pathname === link.path
-                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                      : 'text-slate-300 hover:bg-white/5'
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                      : 'text-zinc-300 hover:bg-white/5'
                   }`}
                 >
                   {link.name}
@@ -192,13 +187,13 @@ const Navbar = () => {
                 <>
                   <Link
                     to={getDashboardLink()}
-                    className="w-full py-2.5 rounded-lg bg-cyan-500/20 text-cyan-300 text-center font-semibold text-sm border border-cyan-500/30"
+                    className="w-full py-2.5 rounded-lg bg-emerald-500/20 text-emerald-300 text-center font-mono font-bold text-xs border border-emerald-500/40"
                   >
                     MY DASHBOARD
                   </Link>
                   <button
                     onClick={logout}
-                    className="w-full py-2 rounded-lg bg-red-500/10 text-red-400 text-center font-medium text-sm"
+                    className="w-full py-2 rounded-lg bg-red-500/10 text-red-400 text-center font-mono text-xs"
                   >
                     LOGOUT
                   </button>
@@ -207,13 +202,13 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/register"
-                    className="w-full py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-black text-center font-bold text-sm shadow-neon-cyan"
+                    className="w-full py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-amber-500 text-black text-center font-heading font-black text-xs uppercase shadow-neon-emerald"
                   >
                     REGISTER NOW
                   </Link>
                   <Link
                     to="/login"
-                    className="w-full py-2 rounded-lg border border-white/10 text-slate-300 text-center text-sm"
+                    className="w-full py-2.5 rounded-lg border border-white/10 text-zinc-300 text-center font-mono text-xs"
                   >
                     LOGIN
                   </Link>

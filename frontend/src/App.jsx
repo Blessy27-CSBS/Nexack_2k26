@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import Loader from './components/Loader';
+// import CustomCursor from './components/three/CustomCursor';
 import { AdminProtectedRoute, ParticipantProtectedRoute } from './components/ProtectedRoute';
 
 // Public Pages
@@ -87,7 +88,7 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100 selection:bg-cyan-500 selection:text-black">
+    <div className="flex flex-col min-h-screen bg-[#07080a] text-zinc-100 selection:bg-emerald-400 selection:text-black">
       <ScrollToTop />
 
       {/* Render Public Navbar unless inside Admin Dashboard Layout */}

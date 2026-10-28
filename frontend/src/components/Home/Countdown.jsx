@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Countdown = ({ targetDate, durationHours = 24 }) => {
   const [timeLeft, setTimeLeft] = useState({
@@ -7,55 +7,34 @@ const Countdown = ({ targetDate, durationHours = 24 }) => {
     hours: 0,
     minutes: 0,
     seconds: 0,
-    status: 'UPCOMING' // 'UPCOMING' | 'LIVE' | 'CONCLUDED'
+    isExpired: false
   });
 
   useEffect(() => {
-    if (!targetDate) return;
-
     const calculateTime = () => {
-      const start = new Date(targetDate).getTime();
-      const end = start + (durationHours * 60 * 60 * 1000);
+      const target = targetDate ? new Date(targetDate).getTime() : new Date('2026-03-27T09:00:00').getTime();
       const now = new Date().getTime();
+      const difference = target - now;
 
-      if (now < start) {
-        const diff = start - now;
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-        setTimeLeft({ days, hours, minutes, seconds, status: 'UPCOMING' });
-      } else if (now >= start && now <= end) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, status: 'LIVE' });
-      } else {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, status: 'CONCLUDED' });
+      if (difference <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true });
+        return;
       }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+      setTimeLeft({ days, hours, minutes, seconds, isExpired: false });
     };
 
     calculateTime();
-    const interval = setInterval(calculateTime, 1000);
-    return () => clearInterval(interval);
-  }, [targetDate, durationHours]);
+    const timer = setInterval(calculateTime, 1000);
+    return () => clearInterval(timer);
+  }, [targetDate]);
 
-  if (timeLeft.status === 'LIVE') {
-    return (
-      <div className="inline-flex items-center space-x-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-500/40 text-emerald-400 font-heading font-extrabold tracking-widest text-lg animate-pulse shadow-neon-cyan">
-        <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
-        <span>HACKATHON IS LIVE</span>
-      </div>
-    );
-  }
-
-  if (timeLeft.status === 'CONCLUDED') {
-    return (
-      <div className="inline-flex items-center space-x-3 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-slate-400 font-heading font-extrabold tracking-widest text-base">
-        <span>HACKATHON CONCLUDED</span>
-      </div>
-    );
-  }
-
-  const timeBlocks = [
+  const timeUnits = [
     { label: 'DAYS', value: timeLeft.days },
     { label: 'HOURS', value: timeLeft.hours },
     { label: 'MINUTES', value: timeLeft.minutes },
@@ -63,20 +42,29 @@ const Countdown = ({ targetDate, durationHours = 24 }) => {
   ];
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 my-6">
-      {timeBlocks.map((block, idx) => (
-        <div
-          key={idx}
-          className="flex flex-col items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#0d101e]/80 border border-white/10 backdrop-blur-md shadow-glass"
-        >
-          <span className="font-heading font-black text-2xl sm:text-3xl text-gradient">
-            {String(block.value).padStart(2, '0')}
-          </span>
-          <span className="text-[10px] font-mono tracking-widest text-slate-400 uppercase mt-1">
-            {block.label}
-          </span>
-        </div>
-      ))}
+    <div className="flex flex-col items-center">
+      <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
+        {timeUnits.map((unit, index) => (
+          <React.Fragment key={unit.label}>
+            <div className="flex flex-col items-center">
+              <div className="relative group">
+                <div className="w-14 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-xl bg-zinc-900/90 border border-white/10 group-hover:border-emerald-500/50 backdrop-blur-xl flex items-center justify-center shadow-xl transition-all duration-300">
+                  <span className="font-mono font-black text-2xl sm:text-4xl md:text-5xl text-white tracking-wider">
+                    {String(unit.value).padStart(2, '0')}
+                  </span>
+                  <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
+                </div>
+              </div>
+              <span className="mt-2 text-[10px] sm:text-xs font-mono font-bold tracking-widest text-zinc-400 uppercase">
+                {unit.label}
+              </span>
+            </div>
+            {index < timeUnits.length - 1 && (
+              <span className="text-xl sm:text-3xl font-mono text-emerald-500/60 -mt-6 font-bold">:</span>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
     </div>
   );
 };

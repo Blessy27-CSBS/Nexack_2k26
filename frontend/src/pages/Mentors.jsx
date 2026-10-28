@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Linkedin, Sparkles } from 'lucide-react';
+import { Users, Linkedin, Sparkles, ExternalLink, Terminal } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { mentorService, getImageUrl } from '../services/api';
 import Loader from '../components/Loader';
 import EmptyState from '../components/EmptyState';
@@ -24,63 +25,69 @@ const Mentors = () => {
     fetchMentors();
   }, []);
 
-  if (loading) return <Loader message="Loading Hackathon Mentors..." />;
+  if (loading) return <Loader message="Loading Industry Mentors & Jurors..." />;
 
   return (
     <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-white">
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto mb-16">
-        <span className="text-xs font-mono font-semibold tracking-widest text-cyan-400 uppercase bg-cyan-500/10 px-3.5 py-1.5 rounded-full border border-cyan-500/20">
-          Industry Advisory
+        <span className="text-xs font-mono font-bold tracking-widest text-emerald-400 uppercase bg-emerald-500/10 px-3.5 py-1.5 rounded-full border border-emerald-500/20">
+          // INDUSTRY ADVISORY & JURY
         </span>
         <h1 className="font-heading font-black text-4xl sm:text-6xl text-white tracking-tight uppercase mt-4 mb-4">
           HACKATHON <span className="text-gradient">MENTORS</span>
         </h1>
-        <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-          Seasoned software architects, tech founders, and domain experts mentoring participants through the 24-hour sprint.
+        <p className="text-zinc-400 text-sm sm:text-base leading-relaxed font-sans">
+          Senior software architects, cloud engineers, founders, and domain specialists on-site to mentor squads throughout the 24-hour sprint.
         </p>
       </div>
 
       {mentors.length === 0 ? (
         <EmptyState
           icon={Users}
-          title="Mentors will be announced soon."
-          message="Our mentor lineup featuring industry leaders and alumni will be unveiled shortly."
+          title="Mentors lineup will be unveiled shortly."
+          message="Our mentor roster featuring industry technology leaders and alumni is being finalized."
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {mentors.map((mentor, idx) => (
-            <div
+            <motion.div
               key={mentor._id || idx}
-              className="cyber-card p-6 flex flex-col justify-between group border border-white/10 hover:border-cyan-500/30"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.08, duration: 0.5 }}
+              whileHover={{ y: -4 }}
+              className="p-7 rounded-3xl border border-white/[0.08] bg-zinc-950/60 hover:border-emerald-500/40 flex flex-col justify-between group relative overflow-hidden transition-all duration-300"
             >
               <div>
-                <div className="w-24 h-24 rounded-2xl overflow-hidden mx-auto mb-4 bg-white/5 border border-white/10">
+                {/* Photo */}
+                <div className="w-24 h-24 rounded-2xl overflow-hidden mx-auto mb-5 bg-zinc-900 border border-white/10 group-hover:border-emerald-500/40 relative transition-all duration-300 shadow-md">
                   {mentor.photo ? (
                     <img
                       src={getImageUrl(mentor.photo)}
                       alt={mentor.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-cyan-400 font-bold font-mono text-xl">
+                    <div className="w-full h-full flex items-center justify-center text-emerald-400 font-bold font-mono text-2xl bg-zinc-900">
                       {mentor.name.charAt(0)}
                     </div>
                   )}
                 </div>
 
-                <h3 className="font-heading font-bold text-lg text-white text-center mb-1">
+                <h3 className="font-heading font-bold text-lg text-white text-center mb-1 group-hover:text-emerald-300 transition-colors">
                   {mentor.name}
                 </h3>
-                <p className="text-xs text-cyan-300 text-center font-medium">
+                <p className="text-xs text-emerald-400 text-center font-mono font-semibold uppercase mb-1">
                   {mentor.designation}
                 </p>
-                <p className="text-[11px] text-slate-400 text-center mb-3">
+                <p className="text-[11px] text-zinc-400 text-center mb-4 font-sans">
                   {mentor.organization}
                 </p>
 
                 {mentor.bio && (
-                  <p className="text-xs text-slate-400 text-center line-clamp-3 mb-4">
+                  <p className="text-xs text-zinc-400 text-center line-clamp-3 mb-4 font-sans leading-relaxed">
                     {mentor.bio}
                   </p>
                 )}
@@ -88,7 +95,10 @@ const Mentors = () => {
                 {mentor.expertise && mentor.expertise.length > 0 && (
                   <div className="flex flex-wrap justify-center gap-1 mb-4">
                     {mentor.expertise.map((exp, eIdx) => (
-                      <span key={eIdx} className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-slate-300 border border-white/5">
+                      <span 
+                        key={eIdx} 
+                        className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-zinc-300 border border-white/5"
+                      >
                         {exp}
                       </span>
                     ))}
@@ -97,19 +107,20 @@ const Mentors = () => {
               </div>
 
               {mentor.linkedin && (
-                <div className="pt-4 border-t border-white/5 text-center">
+                <div className="pt-4 border-t border-white/5 text-center mt-2">
                   <a
                     href={mentor.linkedin}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center space-x-1.5 text-xs text-slate-400 hover:text-cyan-400 transition-colors"
+                    className="inline-flex items-center space-x-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors font-mono"
                   >
                     <Linkedin className="w-3.5 h-3.5" />
                     <span>LinkedIn Profile</span>
+                    <ExternalLink className="w-3 h-3 opacity-60" />
                   </a>
                 </div>
               )}
-            </div>
+            </motion.div>
           ))}
         </div>
       )}

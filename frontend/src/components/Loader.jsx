@@ -1,22 +1,30 @@
 import React from 'react';
 
-const Loader = ({ message = "Initializing NEXACK 2K26..." }) => {
+const Loader = ({ fullScreen = false }) => {
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#07080d] text-white">
-      <div className="relative w-20 h-20 mb-6">
-        {/* Outer glowing ring */}
-        <div className="absolute inset-0 rounded-full border-2 border-cyan-500/20 animate-ping" />
-        {/* Spinning gradient ring */}
-        <div className="w-20 h-20 rounded-full border-2 border-transparent border-t-cyan-400 border-r-purple-500 animate-spin" />
-        {/* Center hexagon/logo */}
-        <div className="absolute inset-0 flex items-center justify-center font-mono text-xs font-bold tracking-widest text-cyan-400">
+    <div className={`flex flex-col items-center justify-center bg-[#050608] select-none ${fullScreen ? 'fixed inset-0 z-50' : 'min-h-[40vh] w-full py-12'}`}>
+      {/* Central Holographic Spinner with NX26 in the Center */}
+      <div className="relative w-24 h-24 flex items-center justify-center">
+        {/* Outer glowing pulsing ring */}
+        <div 
+          className="absolute inset-0 rounded-full border border-emerald-500/30 animate-ping" 
+          style={{ animationDuration: '2.5s' }} 
+        />
+        {/* Concentric spinning rings */}
+        <div 
+          className="w-24 h-24 rounded-full border-2 border-transparent border-t-emerald-400 border-r-amber-400 animate-spin" 
+          style={{ animationDuration: '1.2s' }} 
+        />
+        <div 
+          className="absolute inset-2 rounded-full border border-transparent border-b-purple-400 border-l-emerald-500 animate-spin" 
+          style={{ animationDuration: '2s', animationDirection: 'reverse' }} 
+        />
+        
+        {/* Center NX26 Text */}
+        <div className="absolute inset-0 flex items-center justify-center font-mono text-xs font-black tracking-widest text-emerald-300">
           NX26
         </div>
       </div>
-
-      <p className="font-mono text-sm tracking-widest text-slate-400 uppercase animate-pulse">
-        {message}
-      </p>
     </div>
   );
 };

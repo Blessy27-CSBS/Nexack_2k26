@@ -1,3 +1,5 @@
+import colors from 'tailwindcss/colors.js';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -8,15 +10,20 @@ export default {
   theme: {
     extend: {
       colors: {
-        darkBg: "#07080d",
-        darkSurface: "#0d0f1a",
-        darkCard: "#131627",
-        darkBorder: "rgba(255, 255, 255, 0.08)",
-        cyanNeon: "#00f0ff",
-        purpleNeon: "#9d4edd",
-        pinkNeon: "#ff007f",
-        accentBlue: "#3a86ff",
-        accentGreen: "#00f5d4"
+        // High-contrast Dark theme obsidian foundations
+        darkBg: "#07080a",
+        darkSurface: "#0d0e12",
+        darkCard: "#13151b",
+        darkBorder: "rgba(255, 255, 255, 0.12)",
+        emeraldNeon: "#10b981",
+        amberNeon: "#f59e0b",
+        purpleNeon: "#a855f7",
+        pinkNeon: "#ec4899",
+        limeNeon: "#22c55e",
+        // System color overrides to eliminate blue theme globally
+        cyan: colors.emerald,
+        blue: colors.violet,
+        slate: colors.zinc,
       },
       fontFamily: {
         sans: ["'Inter'", "sans-serif"],
@@ -25,16 +32,39 @@ export default {
         display: ["'Space Grotesk'", "sans-serif"]
       },
       boxShadow: {
-        'neon-cyan': '0 0 15px rgba(0, 240, 255, 0.35)',
-        'neon-purple': '0 0 15px rgba(157, 78, 221, 0.35)',
-        'neon-glow': '0 0 25px rgba(6, 182, 212, 0.25)',
-        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+        'neon-emerald': '0 0 20px rgba(16, 185, 129, 0.4)',
+        'neon-amber': '0 0 20px rgba(245, 158, 11, 0.4)',
+        'neon-purple': '0 0 20px rgba(168, 85, 247, 0.4)',
+        'neon-glow': '0 0 25px rgba(16, 185, 129, 0.35)',
+        'neon-cyan': '0 0 20px rgba(16, 185, 129, 0.4)', // alias legacy
+        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.6)'
       },
       backgroundImage: {
-        'radial-glow': 'radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.08) 0%, transparent 70%)',
-        'grid-pattern': 'linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px)'
+        'radial-glow': 'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.12) 0%, transparent 70%)',
+        'radial-amber': 'radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.12) 0%, transparent 70%)',
+        'grid-pattern': 'linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px)'
+      },
+      keyframes: {
+        textShimmer: {
+          '0%, 100%': { 'background-size': '200% 200%', 'background-position': 'left center' },
+          '50%': { 'background-size': '200% 200%', 'background-position': 'right center' }
+        },
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-50%)' }
+        },
+        pulseSlow: {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.8', transform: 'scale(1.03)' }
+        }
+      },
+      animation: {
+        'text-shimmer': 'textShimmer 4s ease infinite',
+        'marquee': 'marquee 30s linear infinite',
+        'pulse-slow': 'pulseSlow 3s ease-in-out infinite'
       }
     },
   },
   plugins: [],
 }
+

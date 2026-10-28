@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, Plus, Trash2, Save, ArrowLeft, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Users, Plus, Trash2, Save, ArrowLeft, ShieldCheck, AlertCircle, Terminal } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { teamService, trackService } from '../services/api';
 import Loader from '../components/Loader';
@@ -30,8 +30,8 @@ const TeamDashboard = () => {
     const loadData = async () => {
       try {
         const [teamRes, tracksRes] = await Promise.all([
-          teamService.getMyTeam(),
-          trackService.getPublished()
+          teamService.getMyTeam().catch(() => ({ data: { team: null } })),
+          trackService.getPublished().catch(() => ({ data: { tracks: [] } }))
         ]);
 
         if (teamRes.data?.team) {
@@ -99,16 +99,16 @@ const TeamDashboard = () => {
 
       if (res.data?.success) {
         setTeam(res.data.team);
-        setMessage({ type: 'success', text: 'Team details successfully updated!' });
+        setMessage({ type: 'success', text: 'Squad roster details updated successfully!' });
       }
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to update team details' });
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to update squad roster' });
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) return <Loader message="Loading Squad Roster..." />;
+  if (loading) return <Loader message="Accessing Squad Roster Configuration..." />;
 
   const isLeader = team && String(team.leader?._id) === String(user?.id);
 
@@ -117,23 +117,23 @@ const TeamDashboard = () => {
       {/* Back button */}
       <Link
         to="/dashboard"
-        className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-400 hover:text-cyan-400 transition-colors mb-6"
+        className="inline-flex items-center space-x-2 text-xs font-mono font-semibold text-zinc-400 hover:text-emerald-400 transition-colors mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>BACK TO DASHBOARD</span>
+        <span>BACK TO SQUAD DASHBOARD</span>
       </Link>
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <div className="flex items-center space-x-3 mb-1">
-            <span className="font-mono text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded border border-cyan-500/20">
-              {team?.teamId}
+          <div className="flex items-center space-x-3 mb-2">
+            <span className="font-mono text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/30">
+              SQUAD_ID: {team?.teamId}
             </span>
             <StatusBadge status={team?.registrationStatus} />
           </div>
-          <h1 className="font-heading font-black text-3xl sm:text-4xl text-white">
-            Manage Squad Roster
+          <h1 className="font-heading font-black text-3xl sm:text-5xl text-white uppercase tracking-tight">
+            SQUAD <span className="text-gradient">ROSTER</span>
           </h1>
         </div>
 
@@ -141,20 +141,20 @@ const TeamDashboard = () => {
           <button
             onClick={handleSaveTeam}
             disabled={saving}
-            className="px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-heading font-bold text-xs uppercase flex items-center space-x-2 shadow-neon-cyan disabled:opacity-50"
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 hover:from-emerald-400 hover:to-amber-300 text-black font-heading font-black text-xs uppercase flex items-center space-x-2 shadow-neon-emerald disabled:opacity-50 transition-transform hover:scale-105"
           >
-            <Save className="w-4 h-4" />
-            <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+            <Save className="w-4 h-4 text-black" />
+            <span>{saving ? 'Saving...' : 'Save Roster Changes'}</span>
           </button>
         )}
       </div>
 
       {message.text && (
         <div
-          className={`mb-6 p-4 rounded-xl text-xs sm:text-sm flex items-center space-x-3 ${
+          className={`mb-6 p-4 rounded-xl text-xs sm:text-sm flex items-center space-x-3 font-sans ${
             message.type === 'success'
               ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
-              : 'bg-red-500/10 border border-red-500/30 text-red-300'
+              : 'bg-rose-500/10 border border-rose-500/30 text-rose-300'
           }`}
         >
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
@@ -165,34 +165,34 @@ const TeamDashboard = () => {
       {/* Form */}
       <form onSubmit={handleSaveTeam} className="space-y-6">
         {/* Basic Team Settings */}
-        <div className="cyber-card p-6 border border-white/10">
-          <h3 className="font-heading font-bold text-lg text-white mb-4">
-            Team Settings
+        <div className="p-8 border border-white/[0.08] bg-zinc-950/60 rounded-3xl">
+          <h3 className="font-heading font-bold text-lg text-white mb-4 uppercase tracking-wider">
+            Squad Configuration
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-mono text-slate-300 uppercase mb-1">
-                Team Name
+              <label className="block text-xs font-mono text-zinc-300 uppercase mb-1.5">
+                Team / Squad Name
               </label>
               <input
                 type="text"
                 value={teamName}
                 onChange={(e) => setTeamName(e.target.value)}
                 disabled={!isLeader}
-                className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-500/50 disabled:opacity-60"
+                className="w-full px-4 py-3 rounded-xl bg-zinc-900/90 border border-white/10 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500/60 disabled:opacity-60 font-sans"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-300 uppercase mb-1">
-                Selected Track
+              <label className="block text-xs font-mono text-zinc-300 uppercase mb-1.5">
+                Assigned Problem Domain / Track
               </label>
               <select
                 value={trackId}
                 onChange={(e) => setTrackId(e.target.value)}
                 disabled={!isLeader}
-                className="w-full px-4 py-2.5 rounded-xl bg-[#0c0e1a] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-500/50 disabled:opacity-60"
+                className="w-full px-4 py-3 rounded-xl bg-[#0e1017] border border-white/10 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500/60 disabled:opacity-60 font-sans"
               >
                 {tracks.map(t => (
                   <option key={t._id} value={t._id}>
@@ -205,10 +205,10 @@ const TeamDashboard = () => {
         </div>
 
         {/* Squad Members */}
-        <div className="cyber-card p-6 border border-white/10">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-heading font-bold text-lg text-white flex items-center space-x-2">
-              <Users className="w-5 h-5 text-purple-400" />
+        <div className="p-8 border border-white/[0.08] bg-zinc-950/60 rounded-3xl">
+          <div className="flex items-center justify-between mb-6 pb-3 border-b border-white/10">
+            <h3 className="font-heading font-bold text-lg text-white uppercase tracking-wider flex items-center space-x-2">
+              <Users className="w-5 h-5 text-cyan-400" />
               <span>Squad Members ({members.length + 1} Total)</span>
             </h3>
 
@@ -216,7 +216,7 @@ const TeamDashboard = () => {
               <button
                 type="button"
                 onClick={addMember}
-                className="px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center space-x-1.5"
+                className="px-3.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center space-x-1.5 hover:bg-emerald-500/20 font-mono"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Member</span>
@@ -226,32 +226,32 @@ const TeamDashboard = () => {
 
           <div className="space-y-4">
             {/* Leader (Read-only) */}
-            <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20">
+            <div className="p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-heading font-bold text-white text-sm">
                   {team?.leader?.name} (You - Team Leader)
                 </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold uppercase">
-                  Leader
+                <span className="text-[10px] font-mono px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold uppercase">
+                  Squad Leader
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-zinc-400 font-sans">
                 {team?.leader?.email} • {team?.leader?.phone} • {team?.leader?.department} ({team?.leader?.college})
               </p>
             </div>
 
             {/* Editable Members */}
             {members.map((mem, idx) => (
-              <div key={idx} className="p-4 rounded-xl bg-white/[0.02] border border-white/5 relative">
+              <div key={idx} className="p-5 rounded-2xl bg-zinc-900/50 border border-white/5 relative">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-mono text-xs font-bold text-purple-400">
-                    Member #{idx + 1}
+                  <span className="font-mono text-xs font-bold text-cyan-400">
+                    // SQUAD MEMBER #{idx + 2}
                   </span>
                   {isLeader && (
                     <button
                       type="button"
                       onClick={() => removeMember(idx)}
-                      className="p-1 text-slate-500 hover:text-red-400 transition-colors"
+                      className="p-1 text-zinc-500 hover:text-rose-400 transition-colors"
                       title="Remove Member"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -261,35 +261,35 @@ const TeamDashboard = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-[11px] font-mono text-slate-400 mb-1">Name</label>
+                    <label className="block text-[11px] font-mono text-zinc-400 mb-1">Full Name</label>
                     <input
                       type="text"
                       value={mem.name}
                       onChange={(e) => handleMemberChange(idx, 'name', e.target.value)}
                       disabled={!isLeader}
-                      className="w-full px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-xs disabled:opacity-60"
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-xs disabled:opacity-60 font-sans"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-mono text-slate-400 mb-1">Email</label>
+                    <label className="block text-[11px] font-mono text-zinc-400 mb-1">Email Address</label>
                     <input
                       type="email"
                       value={mem.email}
                       onChange={(e) => handleMemberChange(idx, 'email', e.target.value)}
                       disabled={!isLeader}
-                      className="w-full px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-xs disabled:opacity-60"
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-xs disabled:opacity-60 font-sans"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-mono text-slate-400 mb-1">Phone</label>
+                    <label className="block text-[11px] font-mono text-zinc-400 mb-1">Phone Number</label>
                     <input
                       type="tel"
                       value={mem.phone}
                       onChange={(e) => handleMemberChange(idx, 'phone', e.target.value)}
                       disabled={!isLeader}
-                      className="w-full px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-xs disabled:opacity-60"
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-xs disabled:opacity-60 font-sans"
                     />
                   </div>
                 </div>
