@@ -9,7 +9,7 @@ import HackathonExperience from '../components/Home/HackathonExperience';
 import ChallengesSection from '../components/Home/ChallengesSection';
 import PrizeSection from '../components/Home/PrizeSection';
 import TimelineSection from '../components/Home/TimelineSection';
-import EventOperations from '../components/Home/EventOperations';
+
 import FAQSection from '../components/Home/FAQSection';
 import OrganizersSection from '../components/Home/OrganizersSection';
 import RegistrationCTA from '../components/Home/RegistrationCTA';
@@ -109,8 +109,8 @@ const Home = () => {
       {/* 7. Event Timeline & Milestones */}
       <TimelineSection timeline={timeline} />
 
-      {/* 8. Event Operations (10 Core Operational Subsystems) */}
-      <EventOperations />
+      
+      
 
       {/* 9. Knowledge Base FAQ Accordion */}
       <FAQSection faqs={faqs} />
