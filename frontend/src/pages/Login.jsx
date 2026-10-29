@@ -30,8 +30,11 @@ const Login = () => {
     setError('');
     setLoading(true);
 
+    const cleanEmail = email.trim();
+    const cleanPassword = password.trim();
+
     try {
-      await loginParticipant({ email, password });
+      await loginParticipant({ email: cleanEmail, password: cleanPassword });
       navigate('/dashboard');
     } catch (err) {
       console.error('Login error:', err);
@@ -46,12 +49,17 @@ const Login = () => {
     setError('');
     setResetSuccess('');
 
-    if (newPassword.length < 6) {
+    const cleanEmail = forgotEmail.trim();
+    const cleanPhone = forgotPhone.trim();
+    const cleanNewPassword = newPassword.trim();
+    const cleanConfirmPassword = confirmPassword.trim();
+
+    if (cleanNewPassword.length < 6) {
       setError('New password must be at least 6 characters long.');
       return;
     }
 
-    if (newPassword !== confirmPassword) {
+    if (cleanNewPassword !== cleanConfirmPassword) {
       setError('Passwords do not match. Please re-enter.');
       return;
     }
@@ -59,19 +67,20 @@ const Login = () => {
     setResetLoading(true);
     try {
       const res = await authService.resetParticipantPassword({
-        email: forgotEmail,
-        phone: forgotPhone,
-        newPassword
+        email: cleanEmail,
+        phone: cleanPhone,
+        newPassword: cleanNewPassword
       });
 
       if (res.data?.success) {
         setResetSuccess(res.data.message || 'Password changed successfully!');
-        setEmail(forgotEmail);
+        setEmail(cleanEmail);
         setPassword('');
         setTimeout(() => {
           setIsForgotMode(false);
           setResetSuccess('');
-        }, 2200);
+          setError('');
+        }, 1800);
       }
     } catch (err) {
       console.error('Reset password error:', err);
