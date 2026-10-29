@@ -11,16 +11,16 @@ import {
   ArrowRight,
   ExternalLink,
   Upload,
-  Calendar,
+  Sparkles,
   Layers,
-  Award,
-  Terminal,
-  Activity,
-  Sparkles
+  FileText,
+  LogOut,
+  Calendar,
+  Check
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { teamService, submissionService, announcementService, settingsService } from '../services/api';
+import { teamService, submissionService, settingsService } from '../services/api';
 import StatusBadge from '../components/StatusBadge';
 import Loader from '../components/Loader';
 import Modal from '../components/Modal';
@@ -32,11 +32,10 @@ const ParticipantDashboard = () => {
 
   const [team, setTeam] = useState(null);
   const [submission, setSubmission] = useState(null);
-  const [announcements, setAnnouncements] = useState([]);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Payment re-upload modal state
+  // Payment upload state
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [newTransactionId, setNewTransactionId] = useState('');
   const [newProofFile, setNewProofFile] = useState(null);
@@ -45,16 +44,14 @@ const ParticipantDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [teamRes, subRes, annRes, setRes] = await Promise.all([
+      const [teamRes, subRes, setRes] = await Promise.all([
         teamService.getMyTeam().catch(() => ({ data: { team: null } })),
         submissionService.getMySubmission().catch(() => ({ data: { submission: null } })),
-        announcementService.getPublic().catch(() => ({ data: { items: [] } })),
         settingsService.getPublicSettings().catch(() => ({ data: { settings: null } }))
       ]);
 
       if (teamRes.data?.team) setTeam(teamRes.data.team);
       if (subRes.data?.submission) setSubmission(subRes.data.submission);
-      if (annRes.data?.items) setAnnouncements(annRes.data.items);
       if (setRes.data?.settings) setSettings(setRes.data.settings);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
@@ -71,8 +68,13 @@ const ParticipantDashboard = () => {
     fetchDashboardData();
   }, [user, isParticipant, navigate]);
 
-  const handleReuploadPayment = async (e) => {
+  const handleUploadPayment = async (e) => {
     e.preventDefault();
+    if (!newTransactionId && !newProofFile) {
+      setModalMsg('Please provide either a transaction ID / UTR or a screenshot proof.');
+      return;
+    }
+
     setUploadingPayment(true);
     setModalMsg('');
 
@@ -83,9 +85,12 @@ const ParticipantDashboard = () => {
 
       const res = await teamService.uploadPayment(payload);
       if (res.data?.success) {
-        setModalMsg('Payment proof uploaded successfully! Awaiting review.');
-        setShowPaymentModal(false);
-        fetchDashboardData();
+        setModalMsg('Payment proof uploaded successfully! Awaiting committee verification.');
+        setTimeout(() => {
+          setShowPaymentModal(false);
+          setModalMsg('');
+          fetchDashboardData();
+        }, 1500);
       }
     } catch (err) {
       setModalMsg(err.response?.data?.message || 'Failed to upload payment proof');
@@ -94,388 +99,300 @@ const ParticipantDashboard = () => {
     }
   };
 
-  if (loading) return <Loader message="Accessing Participant Telemetry Center..." />;
+  if (loading) return <Loader fullScreen={false} />;
 
   if (!team) {
     return (
-      <div className="min-h-screen py-20 px-4 text-center text-white">
-        <div className="p-12 max-w-xl mx-auto border border-amber-500/30 bg-zinc-950/80 rounded-3xl">
+      <div className="min-h-[80vh] flex items-center justify-center py-20 px-4 text-center text-white">
+        <div className="p-10 max-w-lg mx-auto border border-amber-500/30 bg-zinc-950/80 rounded-3xl shadow-2xl">
           <AlertCircle className="w-12 h-12 text-amber-400 mx-auto mb-4" />
           <h2 className="font-heading font-black text-2xl text-white mb-2 uppercase">No Team Profile Linked</h2>
           <p className="text-zinc-400 text-sm mb-6 font-sans">
-            Your participant profile is not linked to an active hackathon squad.
+            Your participant account ({user?.email}) is not linked to any active hackathon squad.
           </p>
           <Link
             to="/register"
-            className="px-6 py-3 rounded-xl bg-emerald-500 text-black font-heading font-black text-xs uppercase hover:bg-emerald-400 transition-colors inline-block"
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-amber-500 text-black font-heading font-black text-xs uppercase shadow-neon-emerald hover:scale-105 transition-transform inline-block"
           >
-            Register a Squad
+            Register Your Squad
           </Link>
         </div>
       </div>
     );
   }
 
-  // Progress Pipeline Steps
-  const isRegistered = Boolean(team);
-  const isPaymentUploaded = team.paymentStatus === 'Proof Uploaded' || team.paymentStatus === 'Verified';
   const isVerified = team.registrationStatus === 'Verified' && team.paymentStatus === 'Verified';
-  const isSubmitted = submission && submission.status !== 'Draft';
-  const isEvaluated = submission && submission.evaluationCount > 0;
-  const isResultsDone = Boolean(settings?.isResultsPublished);
-
-  const progressSteps = [
-    { label: 'Registration', done: isRegistered },
-    { label: 'Payment', done: isPaymentUploaded },
-    { label: 'Verification', done: isVerified },
-    { label: 'Submission', done: isSubmitted },
-    { label: 'Evaluation', done: isEvaluated },
-    { label: 'Results', done: isResultsDone }
-  ];
-
-  const completedCount = progressSteps.filter(s => s.done).length;
-  const progressPercent = Math.round((completedCount / progressSteps.length) * 100);
+  const hasProofUploaded = team.paymentStatus === 'Proof Uploaded' || team.paymentStatus === 'Verified';
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-white">
-      {/* Top Banner - Developer Command Center */}
-      <motion.div 
+    <div className="min-h-[90vh] py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-white">
+      {/* 1. Personalized Warm Welcome Header */}
+      <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="p-6 sm:p-10 mb-8 border border-white/[0.08] bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 rounded-3xl shadow-2xl"
+        transition={{ duration: 0.4 }}
+        className="mb-8 p-6 sm:p-8 rounded-3xl border border-white/[0.08] bg-gradient-to-br from-zinc-900/90 via-zinc-950 to-[#07080a] shadow-2xl relative overflow-hidden"
       >
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="absolute top-0 right-0 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div>
-            <div className="flex items-center space-x-3 mb-3 flex-wrap gap-y-2">
-              <span className="font-mono text-xs sm:text-sm font-black text-emerald-400 bg-emerald-500/10 px-3.5 py-1 rounded-lg border border-emerald-500/30">
-                SQUAD_ID: {team.teamId}
-              </span>
-              <StatusBadge status={team.registrationStatus} />
-              <StatusBadge status={team.paymentStatus} />
-              <span className="inline-flex items-center space-x-1.5 font-mono text-xs text-zinc-400 bg-white/[0.03] px-3 py-1 rounded-md border border-white/[0.06]">
-                <Activity className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-                <span>CSBS_CODEX_TELEMETRY</span>
-              </span>
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-mono uppercase tracking-wider mb-3">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Participant Portal Active</span>
             </div>
 
-            <h1 className="font-heading font-black text-3xl sm:text-5xl text-white tracking-tight uppercase">
-              {team.name}
+            <h1 className="font-heading font-black text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight">
+              Welcome, <span className="text-gradient">{user?.name || 'Participant'}</span>! 👋
             </h1>
 
-            <p className="text-xs sm:text-sm text-zinc-400 mt-1.5 flex items-center space-x-2 font-sans">
-              <span>Problem Domain:</span>
-              <span className="text-emerald-300 font-semibold font-mono">{team.track?.title || 'Open Innovation'}</span>
+            <p className="text-sm text-zinc-400 mt-2 font-sans max-w-2xl">
+              Glad to have you with us for <strong className="text-white">CSBS NEXACK 2K26</strong>. Here is your essential squad telemetry, verification status, and project actions.
             </p>
           </div>
 
-          {/* Action Quick Links */}
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setShowPaymentModal(true)}
-              className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-200 border border-white/10 text-xs font-mono font-semibold flex items-center space-x-2 transition-all"
-            >
-              <CreditCard className="w-4 h-4 text-amber-400" />
-              <span>PAYMENT PROOF</span>
-            </button>
-
-            <Link
-              to="/my-team"
-              className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-200 border border-white/10 text-xs font-mono font-semibold flex items-center space-x-2 transition-all"
-            >
-              <Users className="w-4 h-4 text-cyan-400" />
-              <span>SQUAD ROSTER</span>
-            </Link>
-
             <Link
               to="/submit"
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 hover:from-emerald-400 hover:to-amber-300 text-black font-heading font-black text-xs tracking-wider uppercase shadow-neon-emerald hover:scale-105 transition-transform flex items-center space-x-2"
+              className="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 hover:from-emerald-400 hover:to-amber-300 text-black font-heading font-black text-xs uppercase tracking-wider shadow-neon-emerald hover:scale-105 transition-transform flex items-center space-x-2"
             >
               <FileCode className="w-4 h-4 text-black" />
-              <span>PROJECT SUBMISSION</span>
+              <span>{submission ? 'View Submission' : 'Submit Project'}</span>
             </Link>
-          </div>
-        </div>
 
-        {/* Animated Progress Bar */}
-        <div className="mt-8 pt-6 border-t border-white/[0.08]">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-widest">
-              // SQUAD READINESS PROGRESS
-            </span>
-            <span className="font-mono text-xs font-bold text-emerald-400">
-              {progressPercent}% Complete ({completedCount}/{progressSteps.length})
-            </span>
-          </div>
-
-          {/* Graphical Progress Bar */}
-          <div className="w-full h-2.5 bg-zinc-900 rounded-full overflow-hidden mb-5 border border-white/5">
-            <motion.div
-              className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progressPercent}%` }}
-              transition={{ duration: 1.2, ease: "easeInOut" }}
-            />
-          </div>
-
-          {/* Stepper Pipeline */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {progressSteps.map((step, idx) => (
-              <div
-                key={idx}
-                className={`p-3 rounded-xl border text-center transition-all ${
-                  step.done
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 shadow-sm'
-                    : 'bg-zinc-900/50 border-white/5 text-zinc-500'
-                }`}
-              >
-                <div className={`w-6 h-6 rounded-full mx-auto mb-1 flex items-center justify-center text-xs font-mono font-bold ${
-                  step.done ? 'bg-emerald-500 text-black' : 'bg-zinc-800 text-zinc-500'
-                }`}>
-                  {step.done ? '✓' : idx + 1}
-                </div>
-                <span className="text-xs font-medium block font-sans">{step.label}</span>
-              </div>
-            ))}
+            <button
+              onClick={logout}
+              title="Logout"
+              className="p-3 rounded-xl bg-white/5 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 border border-white/10 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </motion.div>
 
-      {/* Payment Rejected Alert & Action */}
-      {team.paymentStatus === 'Rejected' && (
-        <div className="mb-8 p-6 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start space-x-3">
-            <AlertCircle className="w-5 h-5 text-rose-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <h4 className="font-heading font-bold text-base text-rose-300 uppercase">
-                Payment Verification Rejected
-              </h4>
-              <p className="text-xs text-rose-200 mt-0.5 font-sans">
-                Reason: {team.rejectionReason || 'Proof unclear or transaction not matched.'}
-              </p>
+      {/* 2. Key Status Cards Grid (Only the Necessary Details) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+        {/* Card 1: Squad Identity */}
+        <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/70 relative">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-widest">// YOUR SQUAD</span>
+            <Users className="w-4 h-4 text-cyan-400" />
+          </div>
+          <h3 className="font-heading font-black text-xl text-white uppercase truncate mb-1">
+            {team.name}
+          </h3>
+          <div className="flex items-center space-x-2 mt-2">
+            <span className="font-mono text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">
+              {team.teamId}
+            </span>
+            <span className="text-xs text-zinc-400 font-sans">
+              • {team.track?.title || 'Open Innovation'}
+            </span>
+          </div>
+        </div>
+
+        {/* Card 2: Registration Approval Status */}
+        <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/70">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-widest">// REGISTRATION</span>
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div className="mb-2">
+            <StatusBadge status={team.registrationStatus} />
+          </div>
+          <p className="text-xs text-zinc-400 font-sans mt-2">
+            {team.registrationStatus === 'Verified'
+              ? 'Squad registration confirmed by faculty advisors.'
+              : 'Squad intake profile is undergoing committee review.'}
+          </p>
+        </div>
+
+        {/* Card 3: Payment Verification Status & CTA */}
+        <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/70 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-widest">// PAYMENT STATUS</span>
+              <CreditCard className="w-4 h-4 text-amber-400" />
+            </div>
+            <div className="mb-2">
+              <StatusBadge status={team.paymentStatus} />
             </div>
           </div>
 
+          <div className="mt-3">
+            <button
+              onClick={() => setShowPaymentModal(true)}
+              className="w-full py-2.5 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer"
+            >
+              <Upload className="w-3.5 h-3.5 text-amber-400" />
+              <span>{hasProofUploaded ? 'Update Payment Proof' : 'Upload Payment Proof'}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Rejection / Warning Notice (if applicable) */}
+      {team.paymentStatus === 'Rejected' && (
+        <div className="mb-8 p-5 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-start justify-between gap-4">
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="w-5 h-5 text-rose-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <h4 className="font-heading font-bold text-sm text-rose-300 uppercase">
+                Payment Verification Issue
+              </h4>
+              <p className="text-xs text-rose-200 mt-1 font-sans">
+                {team.rejectionReason || 'Screenshot unclear or reference ID was not located. Please re-upload your valid UPI payment screenshot.'}
+              </p>
+            </div>
+          </div>
           <button
             onClick={() => setShowPaymentModal(true)}
-            className="px-4 py-2.5 rounded-xl bg-rose-500 text-black font-bold text-xs uppercase flex items-center space-x-2 self-start sm:self-auto hover:bg-rose-400 transition-colors"
+            className="px-4 py-2 rounded-xl bg-rose-500 text-black font-bold text-xs uppercase hover:bg-rose-400 transition-colors flex-shrink-0"
           >
-            <Upload className="w-4 h-4" />
-            <span>Re-upload Payment Proof</span>
+            Re-Upload Now
           </button>
         </div>
       )}
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left: Project & Squad Overview */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Submission Status Card */}
-          <div className="p-7 rounded-2xl border border-white/[0.08] bg-zinc-950/60">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-heading font-bold text-lg text-white flex items-center space-x-2 uppercase">
-                <FileCode className="w-5 h-5 text-emerald-400" />
-                <span>Project Submission Status</span>
+      {/* 4. Core Details: Squad Members & Submission Status */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Squad Members List */}
+        <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/70">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/[0.06]">
+            <h3 className="font-heading font-bold text-base text-white flex items-center space-x-2 uppercase">
+              <Users className="w-4 h-4 text-cyan-400" />
+              <span>Squad Roster ({team.members ? team.members.length + 1 : 1} Members)</span>
+            </h3>
+            <Link to="/my-team" className="text-xs text-emerald-400 hover:underline font-mono">
+              View Squad →
+            </Link>
+          </div>
+
+          <div className="space-y-3">
+            {/* Leader */}
+            <div className="p-3.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="font-bold text-white text-xs sm:text-sm">
+                    {team.leader?.name || user?.name}
+                  </span>
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold uppercase">
+                    Leader
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-400 mt-0.5 font-sans">
+                  {team.leader?.email || user?.email}
+                </p>
+              </div>
+              <span className="text-xs font-mono text-zinc-400">{team.leader?.phone || user?.phone}</span>
+            </div>
+
+            {/* Team Members */}
+            {team.members && team.members.length > 0 ? (
+              team.members.map((mem, idx) => (
+                <div key={idx} className="p-3 rounded-xl bg-zinc-900/40 border border-white/5 flex items-center justify-between">
+                  <div>
+                    <span className="font-medium text-white text-xs block">{mem.name}</span>
+                    <span className="text-[11px] text-zinc-400 font-sans">{mem.email}</span>
+                  </div>
+                  <span className="text-xs font-mono text-zinc-400">{mem.phone}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-xs text-zinc-500 italic font-sans py-2">No additional team members listed.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Project Submission Box */}
+        <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/70 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/[0.06]">
+              <h3 className="font-heading font-bold text-base text-white flex items-center space-x-2 uppercase">
+                <FileCode className="w-4 h-4 text-emerald-400" />
+                <span>Project Submission</span>
               </h3>
               <StatusBadge status={submission ? submission.status : 'Not Submitted'} />
             </div>
 
             {submission ? (
-              <div className="space-y-4">
-                <div className="p-5 rounded-xl bg-zinc-900/60 border border-white/5 space-y-3">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-zinc-400 font-mono">Submission ID:</span>
-                    <span className="font-mono font-bold text-emerald-400">{submission.submissionId || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
+              <div className="space-y-3 font-sans">
+                <div className="p-4 rounded-xl bg-zinc-900/50 border border-white/5 space-y-2 text-xs">
+                  <div className="flex justify-between">
                     <span className="text-zinc-400">Project Title:</span>
                     <span className="font-semibold text-white">{submission.projectTitle}</span>
                   </div>
                   {submission.githubUrl && (
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-zinc-400">GitHub Repository:</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-zinc-400">GitHub:</span>
                       <a
                         href={submission.githubUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-emerald-400 hover:text-emerald-300 font-mono text-xs hover:underline flex items-center space-x-1"
+                        className="text-emerald-400 hover:underline font-mono flex items-center gap-1"
                       >
-                        <span>Repository Link</span>
+                        <span>Open Repo</span>
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
                   )}
                   {submission.demoUrl && (
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-zinc-400">Live Demo URL:</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-zinc-400">Demo:</span>
                       <a
                         href={submission.demoUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-amber-400 hover:text-amber-300 font-mono text-xs hover:underline flex items-center space-x-1"
+                        className="text-cyan-400 hover:underline font-mono flex items-center gap-1"
                       >
-                        <span>Demo Link</span>
+                        <span>Live Preview</span>
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
                   )}
                 </div>
-
-                <div className="flex justify-end">
-                  <Link
-                    to="/submit"
-                    className="px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-mono font-bold flex items-center space-x-2 transition-all"
-                  >
-                    <span>View / Update Submission</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </div>
               </div>
             ) : (
-              <div className="text-center py-6">
-                <p className="text-xs sm:text-sm text-zinc-400 mb-5 font-sans">
+              <div className="py-4 text-center">
+                <p className="text-xs text-zinc-400 font-sans leading-relaxed">
                   {isVerified
-                    ? 'Your squad is verified! You can now access the project submission portal.'
-                    : 'Team registration is currently undergoing verification before project submission opens.'}
+                    ? 'Your squad is verified! You can prepare and submit your project GitHub repository and architecture summary.'
+                    : 'Once your registration and payment are verified by the organizers, project submission will be unlocked.'}
                 </p>
-
-                {isVerified && (
-                  <Link
-                    to="/submit"
-                    className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-heading font-black text-xs uppercase shadow-neon-emerald transition-colors"
-                  >
-                    <span>START PROJECT SUBMISSION</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                )}
               </div>
             )}
           </div>
 
-          {/* Squad Roster Card */}
-          <div className="p-7 rounded-2xl border border-white/[0.08] bg-zinc-950/60">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-heading font-bold text-lg text-white flex items-center space-x-2 uppercase">
-                <Users className="w-5 h-5 text-cyan-400" />
-                <span>Squad Roster ({team.members ? team.members.length + 1 : 1} Members)</span>
-              </h3>
-              <Link to="/my-team" className="text-xs text-emerald-400 hover:underline font-mono">
-                Manage Squad →
-              </Link>
-            </div>
-
-            <div className="space-y-3">
-              {/* Leader */}
-              <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-heading font-bold text-white text-sm">
-                      {team.leader?.name || user.name}
-                    </span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold uppercase">
-                      Team Leader
-                    </span>
-                  </div>
-                  <p className="text-xs text-zinc-400 mt-0.5 font-sans">
-                    {team.leader?.email || user.email} • {team.leader?.department} ({team.leader?.year})
-                  </p>
-                </div>
-                <span className="text-xs font-mono text-zinc-400">{team.leader?.phone}</span>
-              </div>
-
-              {/* Members */}
-              {team.members && team.members.map((mem, idx) => (
-                <div key={idx} className="p-3.5 rounded-xl bg-zinc-900/40 border border-white/5 flex items-center justify-between">
-                  <div>
-                    <span className="font-medium text-white text-sm block">{mem.name}</span>
-                    <p className="text-xs text-zinc-400 mt-0.5 font-sans">
-                      {mem.email} • {mem.department} ({mem.year})
-                    </p>
-                  </div>
-                  <span className="text-xs font-mono text-zinc-400">{mem.phone}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right: Checkpoints & Announcements */}
-        <div className="space-y-6">
-          {/* Key Dates */}
-          <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/60">
-            <h3 className="font-heading font-bold text-base text-white uppercase tracking-wider mb-4 flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-emerald-400" />
-              <span>Timeline Checkpoints</span>
-            </h3>
-
-            <div className="space-y-3 text-xs">
-              <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-white/5">
-                <span className="text-zinc-400 block font-mono">Submission Deadline</span>
-                <span className="font-bold text-white text-sm font-sans mt-0.5 block">
-                  {settings?.submissionDeadline
-                    ? new Date(settings.submissionDeadline).toLocaleString()
-                    : 'March 28, 2026 — 12:00 PM'}
-                </span>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-white/5">
-                <span className="text-zinc-400 block font-mono">Hackathon Grand Finale</span>
-                <span className="font-bold text-white text-sm font-sans mt-0.5 block">
-                  {settings?.eventDate
-                    ? new Date(settings.eventDate).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })
-                    : 'March 27-28, 2026'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Announcements */}
-          <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/60">
-            <h3 className="font-heading font-bold text-base text-white uppercase tracking-wider mb-4 flex items-center space-x-2">
-              <AlertCircle className="w-4 h-4 text-amber-400" />
-              <span>Live Announcements</span>
-            </h3>
-
-            {announcements.length === 0 ? (
-              <p className="text-xs text-zinc-500 italic font-sans">No announcements published yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {announcements.slice(0, 4).map((item, idx) => (
-                  <div key={idx} className="p-3.5 rounded-xl bg-zinc-900/60 border border-white/5 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-xs text-emerald-300">{item.title}</span>
-                      <StatusBadge status={item.priority} className="text-[9px] py-0 px-1.5" />
-                    </div>
-                    <p className="text-xs text-zinc-400 font-sans">{item.message}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className="mt-4 pt-4 border-t border-white/[0.06]">
+            <Link
+              to="/submit"
+              className="w-full py-3 rounded-xl bg-white/5 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-mono font-bold flex items-center justify-center space-x-2 transition-all"
+            >
+              <span>{submission ? 'Edit / Review Submission' : 'Go To Submission Portal'}</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Payment Details & Re-upload Modal */}
+      {/* 5. Payment Modal (Upload Proof & UPI QR) */}
       <Modal
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
-        title="Payment & UPI Verification"
+        title="Squad Payment & Verification"
       >
         <div className="space-y-6">
           <PaymentQRCard
             registrationFee={settings?.registrationFee ?? 400}
-            upiId={settings?.upiId || ''}
+            upiId={settings?.upiId || 'nexack2026@okaxis'}
             qrUrl={settings?.paymentQrDriveLink || settings?.upiQrCode}
-            instructions={settings?.paymentInstructions || "Scan the UPI QR code and complete payment. Upload your transaction screenshot for review."}
+            instructions={settings?.paymentInstructions || "Scan the UPI QR code using any UPI app (GPay / PhonePe / Paytm). Enter your transaction reference number and upload the screenshot below."}
           />
 
-          <form onSubmit={handleReuploadPayment} className="space-y-4 pt-2 border-t border-zinc-800">
+          <form onSubmit={handleUploadPayment} className="space-y-4 pt-3 border-t border-zinc-800">
             <h4 className="text-xs font-mono text-emerald-400 uppercase tracking-wider font-semibold">
-              // SUBMIT PAYMENT PROOF
+              // UPLOAD PAYMENT PROOF
             </h4>
 
             {modalMsg && (
@@ -486,7 +403,7 @@ const ParticipantDashboard = () => {
 
             <div>
               <label className="block text-xs font-mono text-zinc-300 uppercase mb-1">
-                Transaction ID / UTR
+                Transaction ID / UTR Number
               </label>
               <input
                 type="text"
@@ -515,12 +432,12 @@ const ParticipantDashboard = () => {
                 onClick={() => setShowPaymentModal(false)}
                 className="px-4 py-2.5 rounded-lg border border-white/10 text-xs text-zinc-300 hover:bg-zinc-800 font-mono"
               >
-                Close
+                Cancel
               </button>
               <button
                 type="submit"
                 disabled={uploadingPayment}
-                className="px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs uppercase disabled:opacity-50 transition-colors font-mono"
+                className="px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs uppercase disabled:opacity-50 transition-colors font-mono cursor-pointer"
               >
                 {uploadingPayment ? 'Uploading...' : 'Submit Payment Proof'}
               </button>
