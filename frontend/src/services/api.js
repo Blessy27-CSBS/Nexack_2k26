@@ -44,6 +44,7 @@ API.interceptors.response.use(
 export const authService = {
   loginAdmin: (credentials) => API.post('/auth/admin/login', credentials),
   loginParticipant: (credentials) => API.post('/auth/participant/login', credentials),
+  resetParticipantPassword: (data) => API.post('/auth/participant/reset-password', data),
   getMe: () => API.get('/auth/me'),
 };
 

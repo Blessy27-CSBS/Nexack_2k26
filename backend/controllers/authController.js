@@ -90,6 +90,64 @@ export const participantLogin = async (req, res) => {
   }
 };
 
+// Participant Reset Password
+export const resetParticipantPassword = async (req, res) => {
+  try {
+    const { email, phone, newPassword } = req.body;
+
+    if (!email || !phone || !newPassword) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please provide your registered email, registered phone number, and new password.' 
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters long.'
+      });
+    }
+
+    // Clean phone input for robust matching (e.g., stripping spaces, dashes, or +91 prefix differences)
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const participant = await Participant.findOne({ email: email.toLowerCase().trim() });
+
+    if (!participant) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'No participant account found with this registered email.' 
+      });
+    }
+
+    const participantPhoneClean = participant.phone.replace(/[^0-9]/g, '');
+    // Match either full clean number or last 10 digits
+    const phoneMatches = 
+      participantPhoneClean === cleanPhone ||
+      (cleanPhone.length >= 10 && participantPhoneClean.endsWith(cleanPhone.slice(-10))) ||
+      (participantPhoneClean.length >= 10 && cleanPhone.endsWith(participantPhoneClean.slice(-10)));
+
+    if (!phoneMatches) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'The phone number provided does not match the registered leader profile.' 
+      });
+    }
+
+    // Update password (pre-save hook will hash it)
+    participant.password = newPassword;
+    await participant.save();
+
+    res.json({
+      success: true,
+      message: 'Password has been updated successfully! You can now log in with your new password.'
+    });
+  } catch (error) {
+    console.error('Reset Password Error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Get current user profile (Admin or Participant)
 export const getMe = async (req, res) => {
   try {
