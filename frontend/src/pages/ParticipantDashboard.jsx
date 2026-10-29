@@ -61,12 +61,8 @@ const ParticipantDashboard = () => {
   };
 
   useEffect(() => {
-    if (!user || !isParticipant) {
-      navigate('/login');
-      return;
-    }
     fetchDashboardData();
-  }, [user, isParticipant, navigate]);
+  }, []);
 
   const handleUploadPayment = async (e) => {
     e.preventDefault();

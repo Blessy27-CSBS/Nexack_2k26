@@ -4,19 +4,18 @@ import { useAuth } from '../context/AuthContext';
 import Loader from './Loader';
 
 export function AdminProtectedRoute({ allowedRoles = [] }) {
-  const { user, token, loading } = useAuth();
+  const { user, token, loading, role } = useAuth();
   const location = useLocation();
 
   if (loading) {
-    return <Loader fullScreen text="Verifying credentials..." />;
+    return <Loader fullScreen />;
   }
 
-  const storedAdmin = localStorage.getItem('adminInfo') || localStorage.getItem('nexack_user');
-  const roleLower = (user?.role || localStorage.getItem('nexack_role') || '').toLowerCase().replace(/\s+/g, '');
+  const storedToken = token || localStorage.getItem('nexack_token');
+  const roleLower = (role || user?.role || localStorage.getItem('nexack_role') || '').toLowerCase().replace(/\s+/g, '');
   const isAdminOrJudge = ['superadmin', 'admin', 'judge'].includes(roleLower);
-  const adminUser = user || (storedAdmin ? JSON.parse(storedAdmin) : null);
 
-  if (!isAdminOrJudge || (!user && !token)) {
+  if (!storedToken || !isAdminOrJudge) {
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
@@ -34,17 +33,18 @@ export function AdminProtectedRoute({ allowedRoles = [] }) {
 }
 
 export function ParticipantProtectedRoute() {
-  const { user, loading } = useAuth();
+  const { user, loading, role, token } = useAuth();
   const location = useLocation();
 
   if (loading) {
-    return <Loader fullScreen text="Checking session..." />;
+    return <Loader fullScreen />;
   }
 
-  const storedParticipant = localStorage.getItem('participantInfo');
-  const participantUser = user && user.role === 'Participant' ? user : storedParticipant ? JSON.parse(storedParticipant) : null;
+  const storedToken = token || localStorage.getItem('nexack_token');
+  const storedRole = role || user?.role || localStorage.getItem('nexack_role');
+  const isParticipant = storedRole === 'participant' || (user && user.teamId);
 
-  if (!participantUser) {
+  if (!storedToken || !isParticipant) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
