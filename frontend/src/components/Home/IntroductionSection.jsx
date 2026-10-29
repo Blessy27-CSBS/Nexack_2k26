@@ -4,10 +4,10 @@ import { Terminal, Users, Cpu, Clock, Layers, Sparkles, ArrowUpRight } from 'luc
 import { Link } from 'react-router-dom';
 
 const IntroductionSection = ({ stats, trackCount = 0, settings }) => {
-  const participantsCount = stats?.totalParticipants ? `${stats.totalParticipants}+` : '500+';
-  const teamsCount = stats?.totalTeams ? `${stats.totalTeams}` : '120+';
-  const challengesCount = trackCount > 0 ? `${trackCount}` : '8';
-  const hoursCount = `${settings?.durationHours || 24}`;
+  const participantsCount = stats?.totalParticipants !== undefined ? stats.totalParticipants : 0;
+  const teamsCount = stats?.totalTeams !== undefined ? stats.totalTeams : 0;
+  const challengesCount = trackCount !== undefined ? trackCount : 0;
+  const hoursCount = settings?.durationHours || 24;
 
   return (
     <section className="relative py-24 sm:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/[0.08] overflow-hidden">

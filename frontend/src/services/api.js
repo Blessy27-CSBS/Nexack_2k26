@@ -119,6 +119,11 @@ export const adminService = {
   getParticipants: (params) => API.get('/admin/participants', { params }),
 };
 
+// Public Stats Service
+export const statsService = {
+  getPublicStats: () => API.get('/stats'),
+};
+
 // Generic CRUD service generator for dynamic items
 const createCRUDService = (endpoint) => ({
   getAll: () => API.get(`/admin/${endpoint}`),

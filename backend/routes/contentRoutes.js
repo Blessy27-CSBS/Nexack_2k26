@@ -16,7 +16,12 @@ import {
 import { protectAdmin } from '../middleware/authMiddleware.js';
 import upload from '../middleware/uploadMiddleware.js';
 
+import { getPublicStats } from '../controllers/statsController.js';
+
 const router = express.Router();
+
+// Public Stats (counts of actual registered squads, participants, and active tracks)
+router.get('/stats', getPublicStats);
 
 // Helper to register CRUD routes
 const registerCRUDRoutes = (prefix, controller) => {

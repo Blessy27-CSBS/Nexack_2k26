@@ -21,7 +21,7 @@ import {
   announcementService,
   prizeService,
   faqService,
-  adminService
+  statsService
 } from '../services/api';
 
 const Home = () => {
@@ -55,7 +55,7 @@ const Home = () => {
 
         // Fetch stats if available
         try {
-          const statsRes = await adminService.getStats();
+          const statsRes = await statsService.getPublicStats();
           if (statsRes.data?.metrics) setStats(statsRes.data.metrics);
         } catch {
           setStats({ totalTeams: 0, totalParticipants: 0 });
