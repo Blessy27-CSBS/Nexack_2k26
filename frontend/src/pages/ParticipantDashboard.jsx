@@ -6,17 +6,11 @@ import {
   CreditCard,
   FileCode,
   AlertCircle,
-  CheckCircle2,
-  Clock,
-  ArrowRight,
   ExternalLink,
   Upload,
   Sparkles,
-  Layers,
-  FileText,
   LogOut,
-  Calendar,
-  Check
+  ArrowRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -35,7 +29,7 @@ const ParticipantDashboard = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Payment upload state
+  // Payment upload modal state
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [newTransactionId, setNewTransactionId] = useState('');
   const [newProofFile, setNewProofFile] = useState(null);
@@ -81,7 +75,7 @@ const ParticipantDashboard = () => {
 
       const res = await teamService.uploadPayment(payload);
       if (res.data?.success) {
-        setModalMsg('Payment proof uploaded successfully! Awaiting committee verification.');
+        setModalMsg('Payment proof uploaded successfully! Awaiting review.');
         setTimeout(() => {
           setShowPaymentModal(false);
           setModalMsg('');
@@ -121,19 +115,19 @@ const ParticipantDashboard = () => {
   const hasProofUploaded = team.paymentStatus === 'Proof Uploaded' || team.paymentStatus === 'Verified';
 
   return (
-    <div className="min-h-[90vh] py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-white">
-      {/* 1. Personalized Warm Welcome Header */}
+    <div className="min-h-[90vh] py-10 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-white">
+      {/* 1. Aligned Personalized Welcome Header Card */}
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="mb-8 p-6 sm:p-8 rounded-3xl border border-white/[0.08] bg-gradient-to-br from-zinc-900/90 via-zinc-950 to-[#07080a] shadow-2xl relative overflow-hidden"
+        className="mb-8 p-6 sm:p-10 rounded-3xl border border-white/[0.08] bg-gradient-to-br from-zinc-900/90 via-zinc-950 to-[#07080a] shadow-2xl relative overflow-hidden"
       >
-        <div className="absolute top-0 right-0 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div>
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-mono uppercase tracking-wider mb-3">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+          <div className="space-y-3">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-mono uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Participant Portal Active</span>
             </div>
@@ -142,15 +136,16 @@ const ParticipantDashboard = () => {
               Welcome, <span className="text-gradient">{user?.name || 'Participant'}</span>! 👋
             </h1>
 
-            <p className="text-sm text-zinc-400 mt-2 font-sans max-w-2xl">
+            <p className="text-xs sm:text-sm text-zinc-400 font-sans max-w-2xl leading-relaxed">
               Glad to have you with us for <strong className="text-white">CSBS NEXACK 2K26</strong>. Here is your essential squad telemetry, verification status, and project actions.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Action Buttons Aligned */}
+          <div className="flex items-center gap-3 self-start lg:self-center flex-shrink-0">
             <Link
               to="/submit"
-              className="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 hover:from-emerald-400 hover:to-amber-300 text-black font-heading font-black text-xs uppercase tracking-wider shadow-neon-emerald hover:scale-105 transition-transform flex items-center space-x-2"
+              className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 hover:from-emerald-400 hover:to-amber-300 text-black font-heading font-black text-xs uppercase tracking-wider shadow-neon-emerald hover:scale-105 transition-transform flex items-center space-x-2"
             >
               <FileCode className="w-4 h-4 text-black" />
               <span>{submission ? 'View Submission' : 'Submit Project'}</span>
@@ -159,7 +154,7 @@ const ParticipantDashboard = () => {
             <button
               onClick={logout}
               title="Logout"
-              className="p-3 rounded-xl bg-white/5 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 border border-white/10 transition-colors"
+              className="p-3.5 rounded-xl bg-white/5 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 border border-white/10 transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -167,59 +162,69 @@ const ParticipantDashboard = () => {
         </div>
       </motion.div>
 
-      {/* 2. Key Status Cards Grid (Only the Necessary Details) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+      {/* 2. Perfectly Sized 3-Column Status Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Card 1: Squad Identity */}
-        <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/70 relative">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-widest">// YOUR SQUAD</span>
-            <Users className="w-4 h-4 text-cyan-400" />
+        <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/70 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-widest">// YOUR SQUAD</span>
+              <Users className="w-4 h-4 text-cyan-400" />
+            </div>
+            <h3 className="font-heading font-black text-xl text-white uppercase truncate mb-2">
+              {team.name}
+            </h3>
+            <div className="flex items-center flex-wrap gap-2">
+              <span className="font-mono text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20 whitespace-nowrap">
+                {team.teamId}
+              </span>
+              <span className="text-xs text-zinc-400 font-sans truncate">
+                • {team.track?.title || 'Open Innovation'}
+              </span>
+            </div>
           </div>
-          <h3 className="font-heading font-black text-xl text-white uppercase truncate mb-1">
-            {team.name}
-          </h3>
-          <div className="flex items-center space-x-2 mt-2">
-            <span className="font-mono text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">
-              {team.teamId}
-            </span>
-            <span className="text-xs text-zinc-400 font-sans">
-              • {team.track?.title || 'Open Innovation'}
-            </span>
+          <div className="mt-6 pt-3 border-t border-white/5 text-[11px] font-mono text-zinc-500">
+            Registered Squad Profile
           </div>
         </div>
 
         {/* Card 2: Registration Approval Status */}
-        <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/70">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-widest">// REGISTRATION</span>
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="mb-2">
-            <StatusBadge status={team.registrationStatus} />
-          </div>
-          <p className="text-xs text-zinc-400 font-sans mt-2">
-            {team.registrationStatus === 'Verified'
-              ? 'Squad registration confirmed by faculty advisors.'
-              : 'Squad intake profile is undergoing committee review.'}
-          </p>
-        </div>
-
-        {/* Card 3: Payment Verification Status & CTA */}
         <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/70 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-widest">// REGISTRATION</span>
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="mb-3">
+              <StatusBadge status={team.registrationStatus} />
+            </div>
+            <p className="text-xs text-zinc-400 font-sans leading-relaxed">
+              {team.registrationStatus === 'Verified'
+                ? 'Squad registration confirmed by faculty advisors.'
+                : 'Squad intake profile is undergoing committee review.'}
+            </p>
+          </div>
+          <div className="mt-6 pt-3 border-t border-white/5 text-[11px] font-mono text-zinc-500">
+            Faculty Evaluation Check
+          </div>
+        </div>
+
+        {/* Card 3: Payment Verification Status & Action */}
+        <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/70 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-4">
               <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-widest">// PAYMENT STATUS</span>
               <CreditCard className="w-4 h-4 text-amber-400" />
             </div>
-            <div className="mb-2">
+            <div className="mb-3">
               <StatusBadge status={team.paymentStatus} />
             </div>
           </div>
 
-          <div className="mt-3">
+          <div className="mt-4">
             <button
               onClick={() => setShowPaymentModal(true)}
-              className="w-full py-2.5 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer"
             >
               <Upload className="w-3.5 h-3.5 text-amber-400" />
               <span>{hasProofUploaded ? 'Update Payment Proof' : 'Upload Payment Proof'}</span>
@@ -244,60 +249,62 @@ const ParticipantDashboard = () => {
           </div>
           <button
             onClick={() => setShowPaymentModal(true)}
-            className="px-4 py-2 rounded-xl bg-rose-500 text-black font-bold text-xs uppercase hover:bg-rose-400 transition-colors flex-shrink-0"
+            className="px-4 py-2 rounded-xl bg-rose-500 text-black font-bold text-xs uppercase hover:bg-rose-400 transition-colors flex-shrink-0 cursor-pointer"
           >
             Re-Upload Now
           </button>
         </div>
       )}
 
-      {/* 4. Core Details: Squad Members & Submission Status */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* 4. Core Details: Squad Members & Submission Status (Clean 2-Column Equal Grid) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Squad Members List */}
-        <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/70">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/[0.06]">
-            <h3 className="font-heading font-bold text-base text-white flex items-center space-x-2 uppercase">
-              <Users className="w-4 h-4 text-cyan-400" />
-              <span>Squad Roster ({team.members ? team.members.length + 1 : 1} Members)</span>
-            </h3>
-            <Link to="/my-team" className="text-xs text-emerald-400 hover:underline font-mono">
-              View Squad →
-            </Link>
-          </div>
-
-          <div className="space-y-3">
-            {/* Leader */}
-            <div className="p-3.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-center justify-between">
-              <div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-bold text-white text-xs sm:text-sm">
-                    {team.leader?.name || user?.name}
-                  </span>
-                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold uppercase">
-                    Leader
-                  </span>
-                </div>
-                <p className="text-[11px] text-zinc-400 mt-0.5 font-sans">
-                  {team.leader?.email || user?.email}
-                </p>
-              </div>
-              <span className="text-xs font-mono text-zinc-400">{team.leader?.phone || user?.phone}</span>
+        <div className="p-6 rounded-2xl border border-white/[0.08] bg-zinc-950/70 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/[0.06]">
+              <h3 className="font-heading font-bold text-base text-white flex items-center space-x-2 uppercase">
+                <Users className="w-4 h-4 text-cyan-400" />
+                <span>Squad Roster ({team.members ? team.members.length + 1 : 1} Members)</span>
+              </h3>
+              <Link to="/my-team" className="text-xs text-emerald-400 hover:underline font-mono">
+                View Squad →
+              </Link>
             </div>
 
-            {/* Team Members */}
-            {team.members && team.members.length > 0 ? (
-              team.members.map((mem, idx) => (
-                <div key={idx} className="p-3 rounded-xl bg-zinc-900/40 border border-white/5 flex items-center justify-between">
-                  <div>
-                    <span className="font-medium text-white text-xs block">{mem.name}</span>
-                    <span className="text-[11px] text-zinc-400 font-sans">{mem.email}</span>
+            <div className="space-y-3">
+              {/* Leader */}
+              <div className="p-3.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-bold text-white text-xs sm:text-sm">
+                      {team.leader?.name || user?.name}
+                    </span>
+                    <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold uppercase">
+                      Leader
+                    </span>
                   </div>
-                  <span className="text-xs font-mono text-zinc-400">{mem.phone}</span>
+                  <p className="text-[11px] text-zinc-400 mt-1 font-sans">
+                    {team.leader?.email || user?.email}
+                  </p>
                 </div>
-              ))
-            ) : (
-              <p className="text-xs text-zinc-500 italic font-sans py-2">No additional team members listed.</p>
-            )}
+                <span className="text-xs font-mono text-zinc-400">{team.leader?.phone || user?.phone}</span>
+              </div>
+
+              {/* Team Members */}
+              {team.members && team.members.length > 0 ? (
+                team.members.map((mem, idx) => (
+                  <div key={idx} className="p-3 rounded-xl bg-zinc-900/40 border border-white/5 flex items-center justify-between">
+                    <div>
+                      <span className="font-medium text-white text-xs block">{mem.name}</span>
+                      <span className="text-[11px] text-zinc-400 font-sans">{mem.email}</span>
+                    </div>
+                    <span className="text-xs font-mono text-zinc-400">{mem.phone}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-zinc-500 italic font-sans py-2">No additional team members registered.</p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -314,8 +321,8 @@ const ParticipantDashboard = () => {
 
             {submission ? (
               <div className="space-y-3 font-sans">
-                <div className="p-4 rounded-xl bg-zinc-900/50 border border-white/5 space-y-2 text-xs">
-                  <div className="flex justify-between">
+                <div className="p-4 rounded-xl bg-zinc-900/50 border border-white/5 space-y-2.5 text-xs">
+                  <div className="flex justify-between items-center">
                     <span className="text-zinc-400">Project Title:</span>
                     <span className="font-semibold text-white">{submission.projectTitle}</span>
                   </div>
@@ -350,7 +357,7 @@ const ParticipantDashboard = () => {
                 </div>
               </div>
             ) : (
-              <div className="py-4 text-center">
+              <div className="py-6 text-center">
                 <p className="text-xs text-zinc-400 font-sans leading-relaxed">
                   {isVerified
                     ? 'Your squad is verified! You can prepare and submit your project GitHub repository and architecture summary.'
@@ -360,7 +367,7 @@ const ParticipantDashboard = () => {
             )}
           </div>
 
-          <div className="mt-4 pt-4 border-t border-white/[0.06]">
+          <div className="mt-6 pt-4 border-t border-white/[0.06]">
             <Link
               to="/submit"
               className="w-full py-3 rounded-xl bg-white/5 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-mono font-bold flex items-center justify-center space-x-2 transition-all"
@@ -426,7 +433,7 @@ const ParticipantDashboard = () => {
               <button
                 type="button"
                 onClick={() => setShowPaymentModal(false)}
-                className="px-4 py-2.5 rounded-lg border border-white/10 text-xs text-zinc-300 hover:bg-zinc-800 font-mono"
+                className="px-4 py-2.5 rounded-lg border border-white/10 text-xs text-zinc-300 hover:bg-zinc-800 font-mono cursor-pointer"
               >
                 Cancel
               </button>
