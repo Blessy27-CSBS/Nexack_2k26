@@ -726,32 +726,6 @@ export default function AdminSettings() {
                   className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500"
                 />
               </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
-                  GitHub
-                </label>
-                <input
-                  type="url"
-                  value={settings.socialLinks?.github || ''}
-                  onChange={(e) => handleSocialChange('github', e.target.value)}
-                  placeholder="https://github.com/..."
-                  className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
-                  YouTube
-                </label>
-                <input
-                  type="url"
-                  value={settings.socialLinks?.youtube || ''}
-                  onChange={(e) => handleSocialChange('youtube', e.target.value)}
-                  placeholder="https://youtube.com/..."
-                  className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500"
-                />
-              </div>
             </div>
           </div>
         )}

@@ -49,7 +49,6 @@ const menuGroups = [
   {
     title: 'JUDGING & SCORING',
     items: [
-      { name: 'Judges', path: '/admin/judges', icon: Scale },
       { name: 'Evaluations', path: '/admin/evaluations', icon: BookOpen },
       { name: 'Leaderboard', path: '/admin/leaderboard', icon: Trophy },
       { name: 'Results', path: '/admin/results', icon: Award }
@@ -62,7 +61,6 @@ const menuGroups = [
       { name: 'Timeline', path: '/admin/timeline', icon: Calendar },
       { name: 'Prizes', path: '/admin/prizes', icon: Trophy },
       { name: 'Rules', path: '/admin/rules', icon: BookOpen },
-      { name: 'Mentors', path: '/admin/mentors', icon: Users },
       { name: 'Faculty', path: '/admin/faculty', icon: Users },
       { name: 'Association', path: '/admin/association', icon: Users },
       { name: 'Sponsors', path: '/admin/sponsors', icon: Award },

@@ -185,9 +185,6 @@ const AdminDashboard = () => {
               <Link to="/admin/submissions" className="p-3 rounded-xl bg-white/5 hover:bg-purple-500/10 border border-white/10 text-xs font-semibold text-purple-300 block text-center transition-colors">
                 Review Submissions
               </Link>
-              <Link to="/admin/judges" className="p-3 rounded-xl bg-white/5 hover:bg-emerald-500/10 border border-white/10 text-xs font-semibold text-emerald-300 block text-center transition-colors">
-                Assign Judges
-              </Link>
               <Link to="/admin/settings" className="p-3 rounded-xl bg-white/5 hover:bg-amber-500/10 border border-white/10 text-xs font-semibold text-amber-300 block text-center transition-colors">
                 Website Settings
               </Link>
@@ -200,3 +197,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
